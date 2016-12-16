@@ -7,14 +7,21 @@ import java.util.logging.Logger;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.event.EventHandler;
+import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.shape.Line;
 import javafx.stage.Stage;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.util.Duration;
 
 /**
  *
@@ -22,13 +29,12 @@ import javafx.stage.Stage;
  */
 
 public class GameApp extends Application {
-    
+    Group ventana = new Group();
     // ancho (widht) - alto (height)
     Canvas canvas = new Canvas(850, 550);
-
-     double coorX;
-    double coorY;
     
+    double posX, posY;
+
     //stage.setResizable(false);
     final GraphicsContext gc = canvas.getGraphicsContext2D();
     
@@ -74,8 +80,8 @@ public class GameApp extends Application {
             gc.drawImage(city, 0, 0);
         }
     }
-    
-    public void missiles(final Scene escenario){             
+            
+    public void missiles(final Scene escenario){
         int i = 2;
         while(i > 0){
             new AnimationTimer(){   
@@ -87,23 +93,37 @@ public class GameApp extends Application {
                 double y2 = 0;
                 public void handle(long currentNanoTime)
                 {
+                    double t = (currentNanoTime - startNanoTime) / 1000000000000000000.0;  
                     
-                    escenario.setOnMouseClicked(
-                        new EventHandler<MouseEvent>() {
+                    escenario.setOnMouseClicked( new EventHandler<MouseEvent>() {
                         public void handle(MouseEvent e) {
-                            coorX = e.getX(); coorY = e.getY();
-                            if(coorX <= 850 && coorY <= 550){
-                                Line defensa = new Line(0, 550, coorX, coorY);
-                            }
-
+                            posX = e.getX();
+                            posY = e.getY();
+                            if(posX <= 850 && posY <= 550)
+                                if (e.getButton() == MouseButton.PRIMARY) {
+                                    Circle linea = new Circle(posX, posY, 10, Color.BLACK);
+                                    Timeline lineatiempo = new Timeline();
+                                    lineatiempo.setAutoReverse(false);                                    
+                                    lineatiempo.setCycleCount(3);
+                                    KeyFrame f1 = new KeyFrame(Duration.ZERO, new KeyValue(linea.translateXProperty(), posX));
+                                    KeyFrame f2 = new KeyFrame(new Duration(2000), new KeyValue(linea.translateYProperty(), 400));
+                                    lineatiempo.getKeyFrames().addAll(f1, f2);
+                                    //lineatiempo.play(); 
+                                    ventana.getChildren().add(linea); 
+                                    /*new AnimationTimer(){
+                                        public void handle(long currentNanoTime){
+                                            
+                                        }
+                                    }.start();*/
+                                }
                         }
                     });
                     
-                    //double t = (currentNanoTime - startNanoTime) / 1000000000000000000.0;  
                     x1 = x1 + 0.2;
                     y1 = y1 + 0.7;
                     x2 = x2 - 0.2;
                     y2 = y2 + 0.7;
+                    
                     if(y1 <= 390 || y2 <= 390 && bandera == 0){
                         gc.drawImage(asteroide, x1, y1); 
                         gc.drawImage(asteroide, x2, y2); 
@@ -141,7 +161,7 @@ public class GameApp extends Application {
     }
     
     public void Game(Stage stage) throws InterruptedException{
-        Group ventana = new Group();
+
         Scene escenario = new Scene(ventana);
         stage.setScene(escenario);
         
@@ -170,12 +190,12 @@ public class GameApp extends Application {
     @Override
     public void start(Stage stage) throws InterruptedException {
         
-        Game(stage);
         // Caracteristicas de la ventana
         stage.setTitle("Missile Command 2.0");
         stage.setWidth(850);
         stage.setHeight(550);
-        stage.setTitle( "Timeline Example" );
+        Game(stage);
+
         stage.show();
     }
     
