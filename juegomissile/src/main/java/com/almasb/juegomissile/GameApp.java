@@ -28,6 +28,8 @@ import javafx.util.Duration;
  * @author Catalina
  */
 
+// JavaFX - GameFX
+
 public class GameApp extends Application {
     Group ventana = new Group();
     // ancho (widht) - alto (height)
@@ -128,7 +130,7 @@ public class GameApp extends Application {
                         gc.drawImage(asteroide, x1, y1); 
                         gc.drawImage(asteroide, x2, y2); 
                     }
-                    else{
+                    else{                                                     
                         if(bandera == 0){
                             gc.drawImage(boom, x1, y1); 
                             gc.drawImage(boom, x2, y2);
